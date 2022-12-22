@@ -6,6 +6,7 @@
 // You can read more about it at https://doc.rust-lang.org/std/str/trait.FromStr.html
 // Execute `rustlings hint from_str` or use the `hint` watch subcommand for a hint.
 
+use std::num::IntErrorKind::Empty;
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -28,7 +29,6 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
 
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
@@ -46,6 +46,24 @@ enum ParsePersonError {
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        if s.is_empty() {
+            return Err(Self::Err::Empty)
+        }
+
+        let parts: Vec<&str> = s.split(",").collect();
+
+        if parts.len() != 2 {
+            return Err(Self::Err::BadLen)
+        }
+
+        if parts[0].is_empty() {
+            return Err(Self::Err::NoName)
+        }
+
+        match parts[1].parse() {
+            Ok(age) => Ok(Person { name: parts[0].to_owned(), age }),
+            Err(err) => Err(Self::Err::ParseInt(err)),
+        }
     }
 }
 
